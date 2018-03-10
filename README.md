@@ -6,13 +6,13 @@ jus `pip install -e git+https://github.com/ardzix/django-datatable.git#egg=datat
 
 # Usage
 ### Simple datatable serve
-`
 
-
+```python
 from datatable import Datatable
 from app.models import YourModelObject
+
     def datatable(self, request):
-        
+
         qs = YourModelObject.objects.filter(
             deleted_at__isnull = True
         )
@@ -20,42 +20,41 @@ from app.models import YourModelObject
         defer = ['id', 'created_by', 'id_num', 'phone', 'created_at']
 
         d = Datatable(request, qs, defer)
-        
+
         return d.get_data()
-`
+```
 
 ### Lookup field datatable serve
-`
 
-
+```python
 from datatable import Datatable
 from app.models import YourModelObject
-    def datatable(self, request):
-        
-        qs = YourModelObject.objects.filter(
-            deleted_at__isnull = True
-        )
 
-        defer = ['id', 'created_by', 'id_num', 'phone', 'created_at']
+def datatable(self, request):
 
-        d = Datatable(request, qs, defer)
-        d.set_lookup_defer(['created_by__first_name'])
-        
-        return d.get_data()
-`
+    qs = YourModelObject.objects.filter(
+        deleted_at__isnull = True
+    )
+
+    defer = ['id', 'created_by', 'id_num', 'phone', 'created_at']
+
+    d = Datatable(request, qs, defer)
+    d.set_lookup_defer(['created_by__first_name'])
+
+    return d.get_data()
+```
 
 ### Full templateview class exampe
-`
 
-
+```python
 from datatable import Datatable
 from app.models import YourModelObject
-class CustomerView(TemplateView):
 
+class CustomerView(TemplateView):
     template_name = "customer/index.html"
-    
+
     def get(self, request):
-        
+
         if request.GET.get('draw', None) != None:
             return self.datatable(request)
 
@@ -70,6 +69,6 @@ class CustomerView(TemplateView):
 
         d = Datatable(request, qs, defer)
         d.set_lookup_defer(['created_by__first_name'])
-        
+
         return d.get_data()
-`
+```
