@@ -2,7 +2,7 @@
 A library that serve datatable in server side running on python-django
 
 # Installation
-jus `pip install -e git+https://github.com/ardzix/django-datatable.git#egg=datatabl` in your python environment
+jus `pip install -e git+https://github.com/ardzix/django-datatable.git#egg=datatable` in your python environment
 
 # Usage
 ### Simple datatable serve
