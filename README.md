@@ -7,10 +7,10 @@ jus `pip install -e git+https://github.com/ardzix/django-datatable.git#egg=datat
 # Usage
 ### Simple datatable serve
 `
-from datatable import Datatable
-from app.models import YourModelObject
-
     def datatable(self, request):
+        from datatable import Datatable
+        from app.models import YourModelObject
+        
         qs = YourModelObject.objects.filter(
             deleted_at__isnull = True
         )
@@ -24,10 +24,10 @@ from app.models import YourModelObject
 
 ### Lookup field datatable serve
 `
-from datatable import Datatable
-from app.models import YourModelObject
-
     def datatable(self, request):
+        from datatable import Datatable
+        from app.models import YourModelObject
+        
         qs = YourModelObject.objects.filter(
             deleted_at__isnull = True
         )
@@ -42,11 +42,10 @@ from app.models import YourModelObject
 
 ### Full templateview class exampe
 `
-
-from datatable import Datatable
-from app.models import YourModelObject
-
 class CustomerView(TemplateView):
+    from datatable import Datatable
+    from app.models import YourModelObject
+
     template_name = "customer/index.html"
     
     def get(self, request):
