@@ -28,11 +28,8 @@ class Datatable(object):
     # Initialize class attribute
     request = None
     obj = None
-    defer = []
-    lookup_defer = []
     key = ""
     deff_button = True
-    custom_button = []
     time_format = "MMM. D, YYYY h:mm a"
     offset = 0
     limit = 10
@@ -41,11 +38,15 @@ class Datatable(object):
     posts = None
     error = False
     error_messages = None
+    defer = []
+    lookup_defer = []
     search_defer = []
     search_uid_defer = []
+    looked_up_defer_index = []
     search_query = []
     origin_field = []
     model_method = []
+    custom_button = []
 
     # When you instantiate a variable with this class, you need to provide:
     # - request   : the request needed to get url parameter sent by client
@@ -115,17 +116,25 @@ class Datatable(object):
             self.model_method.append(m['method'])
 
     def set_lookup_defer(self, lookup=[]):
+        '''
+        Use this method if you want your column value to be looked up to another models
+        look up field is a relational field
+        '''
         lookup_dict_list = []
-        for l in lookup:
+        looked_up_defer_index = []
+        for k,l in enumerate(lookup):
             l_dict = {"lookup_field":l}
             splited_l = l.split("__")
             field = ""
             if len(splited_l) > 0:
                 l_dict['field'] = splited_l[0]
+                l_dict['index'] = self.defer.index(l_dict['field'])
                 if len(self.obj) > 0:
                     l_dict['model'] = self.obj[0].__class__
+                    looked_up_defer_index.append(l_dict['index'])
                     lookup_dict_list.append(l_dict)
 
+        self.looked_up_defer_index = looked_up_defer_index
         self.lookup_defer = lookup_dict_list
 
     # Set error status true and give error message if there is no search result 
@@ -161,7 +170,6 @@ class Datatable(object):
                 else:
                     search_defer.append(self.defer[n]+"__icontains")
                     
-        
         self.search_defer = search_defer
         self.search_uid_defer = u_id
         self.perform_search()
@@ -201,13 +209,21 @@ class Datatable(object):
         for v in self.posts[self.offset:self.limit]:
             d_list = []
             # loop for every defer then
-            for x in self.defer:
+            for k,x in enumerate(self.defer):
                 # get attribute of post result with defer as a key
-                if x in self.origin_field:
-                    of_index = self.origin_field.index(x)
-                    attr = getattr(v, self.model_method[of_index])
+                if k in self.looked_up_defer_index:
+                    di = self.looked_up_defer_index.index(k)
+                    ld = self.lookup_defer[di]
+                    lf = ld['lookup_field'].split("__")
+                    o = v
+                    for field in lf:
+                        attr = getattr(o, field)
+                        o=attr
+
                 else:
                     attr = getattr(v, x)
+
+                print attr
                 # if the attribute is a method
                 if type(attr) == types.MethodType:
                     # we convert the attribute velue then append it to result row
