@@ -243,7 +243,7 @@ class Datatable(object):
             # if deff button is True
             if self.deff_button:
                 # we add the rendered deffault button
-                button = button+'<button type="button" style="margin:2px" class="btn btn-sm btn-primary btn-cons btn-animated from-left pg pg-arrow_right datatable-edit-button" onclick="edit_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-edit"></i>&nbsp;Detail &amp; Edit</span></button><button type="button" style="margin:2px" class="btn btn-sm btn-danger btn-cons btn-animated from-left pg pg-arrow_right" onclick="delete_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-trash"></i>&nbsp;Delete</span></button>'
+                button = button+'<button type="button" style="margin:2px" class="btn btn-sm btn-primary btn-cons btn-animated from-left pg pg-arrow_right datatable-edit-button" id="edit-'+str(getattr(v, self.key))+'" onclick="edit_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-edit"></i>&nbsp;Detail &amp; Edit</span></button><button type="button" style="margin:2px" class="btn btn-sm btn-danger btn-cons btn-animated from-left pg pg-arrow_right" onclick="delete_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-trash"></i>&nbsp;Delete</span></button>'
 
             # for every custom button provided in parameter:
             for b in self.custom_button:
