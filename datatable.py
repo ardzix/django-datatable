@@ -13,8 +13,8 @@ import arrow
 from django.conf import settings
 from json_response import JSONResponse
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 # =============================================
 # The Datatable
@@ -223,13 +223,12 @@ class Datatable(object):
                 else:
                     attr = getattr(v, x)
 
-                print attr
                 # if the attribute is a method
                 if type(attr) == types.MethodType:
                     # we convert the attribute velue then append it to result row
                     d_list.append(str(attr()))
                 # if the attribute is datetime
-                elif str(type(attr)) == "<type 'datetime.datetime'>":
+                elif str(type(attr)) == "<type 'datetime.datetime'>" or str(type(attr)) == "<class 'datetime.datetime'>":
                     # we convert its value (datetime) to local timezone and append it
                     locale_time = arrow.get(attr).to(settings.TIME_ZONE)
                     d_list.append(locale_time.format(self.time_format))
