@@ -44,8 +44,8 @@ class Datatable(object):
     search_uid_defer = []
     looked_up_defer_index = []
     search_query = []
-    origin_field = []
-    model_method = []
+    method_origin_field = []
+    method_field = []
     custom_button = []
 
     # When you instantiate a variable with this class, you need to provide:
@@ -112,8 +112,8 @@ class Datatable(object):
 
     def set_method_defer(self, method=[]):
         for m in method:
-            self.origin_field.append(m['origin'])
-            self.model_method.append(m['method'])
+            self.method_origin_field.append(m['origin'])
+            self.method_field.append(m['method'])
 
     def set_lookup_defer(self, lookup=[]):
         '''
@@ -219,6 +219,11 @@ class Datatable(object):
                     for field in lf:
                         attr = getattr(o, field)
                         o=attr
+
+                # if defer in method_field, get method field value instead
+                elif x in self.method_origin_field:
+                    index = self.method_origin_field.index(x)
+                    attr = getattr(v, self.method_field[index])
 
                 else:
                     attr = getattr(v, x)
