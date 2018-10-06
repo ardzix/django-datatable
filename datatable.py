@@ -48,15 +48,18 @@ class Datatable(object):
     method_field = []
     custom_button = []
 
-    # When you instantiate a variable with this class, you need to provide:
-    # - request   : the request needed to get url parameter sent by client
-    # - obj       : this is model object
-    # - defer     : list of column that need to be returned
-    # - key       : column name for table id
-    # - deff_button : if true, button edit and delete will be shown on last column automatically
-    # - custom_button : custom button that will be rendered after default button
 
     def __init__(self, request, obj, defer, key="id62", deff_button=True,custom_button=[]):
+        '''
+        When you instantiate a variable with this class, you need to provide:
+        - request   : the request needed to get url parameter sent by client
+        - obj       : this is model object
+        - defer     : list of column that need to be returned
+        - key       : column name for table id
+        - deff_button : if true, button edit and delete will be shown on last column automatically
+        - custom_button : custom button that will be rendered after default button
+        '''
+
         self.request = request
         self.obj = obj
         self.defer = defer
@@ -111,6 +114,16 @@ class Datatable(object):
         return JSONResponse(self.data)
 
     def set_method_defer(self, method=[]):
+        '''
+        If you have a method that modify field data, you can call
+        this set_method_defer and this will return the value from
+        method you specified
+
+        example : 
+        d.set_method_defer([{'origin':'field', 'method': 'method'}])
+         - origin: origin field in model
+         - method: method that you want get
+        '''
         for m in method:
             self.method_origin_field.append(m['origin'])
             self.method_field.append(m['method'])
