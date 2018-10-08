@@ -179,19 +179,20 @@ class Datatable(object):
                         kwargs = {
                             keyword : self.search_query
                         }
-                        u_id += list(self.lookup_defer[ld_index]['model'].objects.filter(**kwargs).values_list('id', flat=True))
+                        u_id += list(self.lookup_defer[ld_index]['model'].objects.filter(**kwargs).values_list(self.key, flat=True))
                 else:
                     search_defer.append(self.defer[n]+"__icontains")
                     
         self.search_defer = search_defer
         self.search_uid_defer = u_id
         self.perform_search()
+
     # We make filter query from search value in this method
     def perform_search(self):
 
         # We make filter queries from the defer
         queries = [Q(**{f: self.search_query}) for f in self.search_defer]
-        queries.append(Q(**{"id__in": self.search_uid_defer}))
+        queries.append(Q(**{"%s__in"%self.key: self.search_uid_defer}))
         # We instantiate a variable called QS from Q class
         qs = Q()
         # for every query in filter queries
