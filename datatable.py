@@ -266,7 +266,7 @@ class Datatable(object):
             # for every custom button provided in parameter:
             for b in self.custom_button:
                 # we render the button html
-                button = button+'<button type="button" style="'+b['style']+'" class="'+b['class']+'" onclick="'+b['on_click']+'(\''+str(getattr(v, self.key))+'\')"><span><i class="fa '+b['icon']+'"></i>&nbsp;'+b['text']+'</span></button>'
+                button = button+'<button type="button" style="'+b['style']+'" class="'+b['class']+'" data-id="'+str(getattr(v, self.key))+'"><span><i class="fa '+b['icon']+'"></i>&nbsp;'+b['text']+'</span></button>'
             # Then we append the rendered button to the field
             d_list.append(button)
             self.data['data'].append(tuple(d_list))
