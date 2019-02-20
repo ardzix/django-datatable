@@ -231,6 +231,8 @@ class Datatable(object):
                     lf = ld['lookup_field'].split("__")
                     o = v
                     for field in lf:
+                        if not o:
+                            continue
                         attr = getattr(o, field)
                         o=attr
 
