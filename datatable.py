@@ -220,7 +220,9 @@ class Datatable(object):
         self.data['data'] = []
         n = 0
         # for every post result in page requested by client, we do:
-        for v in self.posts[self.offset:self.limit]:
+        if self.limit > -1:
+            self.posts = self.posts[self.offset:self.limit]
+        for v in self.posts:
             d_list = []
             # loop for every defer then
             for k,x in enumerate(self.defer):
