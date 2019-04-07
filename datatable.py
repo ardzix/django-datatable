@@ -275,7 +275,7 @@ class Datatable(object):
                             datatable-edit-button" \
                         data-toggle="tooltip" \
                         title="Cick to edit, Double click to open in new tab" \
-                        onclick="edit_data(\'%s\')">\
+                        data-id="%s" \
                         <span><i class="fa fa-edit"></i></span>\
                     </button>\
                     <button \
@@ -286,10 +286,10 @@ class Datatable(object):
                             btn-sm \
                             btn-inline \
                             btn-danger \
-                            datatable-edit-button" \
+                            datatable-delete-button" \
                         data-toggle="tooltip" \
                         title="Cick to delete this data" \
-                        onclick="delete_data(\'%s\')">\
+                        data-id="%s" \
                         <span><i class="fa fa-trash"></i></span>\
                     </button>' % (
                         str(getattr(v, self.key)),
