@@ -135,13 +135,15 @@ class Datatable(object):
         '''
         lookup_dict_list = []
         looked_up_defer_index = []
+        defer = self.defer
         for k,l in enumerate(lookup):
             l_dict = {"lookup_field":l}
             splited_l = l.split("__")
             field = ""
             if len(splited_l) > 0:
                 l_dict['field'] = splited_l[0]
-                l_dict['index'] = self.defer.index(l_dict['field'])
+                l_dict['index'] = defer.index(l_dict['field'])
+                defer[l_dict['index']] = '-'
                 if len(self.obj) > 0:
                     l_dict['model'] = self.obj[0].__class__
                     looked_up_defer_index.append(l_dict['index'])
