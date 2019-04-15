@@ -13,6 +13,7 @@ import arrow
 from django.conf import settings
 from json_response import JSONResponse
 import sys
+import copy
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
 
@@ -135,7 +136,7 @@ class Datatable(object):
         '''
         lookup_dict_list = []
         looked_up_defer_index = []
-        defer = self.defer
+        defer = copy.copy(self.defer)
         for k,l in enumerate(lookup):
             l_dict = {"lookup_field":l}
             splited_l = l.split("__")
@@ -164,6 +165,7 @@ class Datatable(object):
         # if it is searchable and not in lookup defer, we append it to search_defer
         search_defer = []
         u_id = []
+        ld_index = 0
         for n in range(len(self.defer)):
             if self.request.GET.get('columns['+str(n)+'][searchable]','false') == 'true':
                 if len(self.lookup_defer) > 0:
@@ -176,12 +178,13 @@ class Datatable(object):
                     if self.defer[n] not in cleaned_lookup_defer:
                         search_defer.append(self.defer[n]+"__icontains")
                     else:
-                        ld_index = cleaned_lookup_defer.index(self.defer[n])
                         keyword = self.lookup_defer[ld_index]['lookup_field'] + "__icontains"
                         kwargs = {
                             keyword : self.search_query
                         }
                         u_id += list(self.lookup_defer[ld_index]['model'].objects.filter(**kwargs).values_list(self.key, flat=True))
+                        ld_index += 1
+
                 else:
                     search_defer.append(self.defer[n]+"__icontains")
                     
