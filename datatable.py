@@ -222,7 +222,9 @@ class Datatable(object):
         self.data['data'] = []
         n = 0
         # for every post result in page requested by client, we do:
-        for v in self.posts[self.offset:self.limit]:
+        if self.limit > -1:
+            self.posts = self.posts[self.offset:self.limit]
+        for v in self.posts:
             d_list = []
             # loop for every defer then
             for k,x in enumerate(self.defer):
@@ -265,7 +267,38 @@ class Datatable(object):
             # if deff button is True
             if self.deff_button:
                 # we add the rendered deffault button
-                button = button+'<button type="button" style="margin:2px" class="btn btn-sm btn-inline btn-primary btn-animated from-left pg pg-arrow_right datatable-edit-button" id="edit-'+str(getattr(v, self.key))+'" onclick="edit_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-edit"></i></span></button><button type="button" style="margin:2px" class="btn btn-sm btn-inline btn-danger btn-animated from-left pg pg-arrow_right" onclick="delete_data(\''+str(getattr(v, self.key))+'\')"><span><i class="fa fa-trash"></i></span></button>'
+                button = button + \
+                    '<button \
+                        type="button" \
+                        style="margin:2px" \
+                        class="\
+                            btn \
+                            btn-sm \
+                            btn-inline \
+                            btn-primary \
+                            datatable-edit-button" \
+                        data-toggle="tooltip" \
+                        title="Cick to edit, Double click to open in new tab" \
+                        data-id="%s" \
+                        <span><i class="fa fa-edit"></i></span>\
+                    </button>\
+                    <button \
+                        type="button" \
+                        style="margin:2px" \
+                        class="\
+                            btn \
+                            btn-sm \
+                            btn-inline \
+                            btn-danger \
+                            datatable-delete-button" \
+                        data-toggle="tooltip" \
+                        title="Cick to delete this data" \
+                        data-id="%s" \
+                        <span><i class="fa fa-trash"></i></span>\
+                    </button>' % (
+                        str(getattr(v, self.key)),
+                        str(getattr(v, self.key)),
+                    )
 
             # for every custom button provided in parameter:
             for b in self.custom_button:
