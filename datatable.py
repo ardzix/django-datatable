@@ -6,7 +6,7 @@
 # Please write your identity if you change this file
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from django.db.models import  Q
+from django.db.models import Q
 import types
 import datetime
 import arrow
@@ -24,6 +24,8 @@ import copy
 #
 # i know this file is a mess, i hope you can improve this
 # =============================================
+
+
 class Datatable(object):
 
     # Initialize class attribute
@@ -49,8 +51,7 @@ class Datatable(object):
     method_field = []
     custom_button = []
 
-
-    def __init__(self, request, obj, defer, key="id62", deff_button=True,custom_button=[]):
+    def __init__(self, request, obj, defer, key="id62", deff_button=True, custom_button=[]):
         '''
         When you instantiate a variable with this class, you need to provide:
         - request   : the request needed to get url parameter sent by client
@@ -67,19 +68,19 @@ class Datatable(object):
         self.key = key
         self.deff_button = deff_button
         self.custom_button = custom_button
-        self.offset = int(request.GET.get("start",0))
-        self.limit = int(request.GET.get("length",10)) + self.offset
+        self.offset = int(request.GET.get("start", 0))
+        self.limit = int(request.GET.get("length", 10)) + self.offset
 
     def perform_query(self):
         request = self.request
         obj = self.obj
         # Get ordering parameter
-        if not request.GET.get("order[0][dir]","") == "asc":
+        if not request.GET.get("order[0][dir]", "") == "asc":
             self.ordering = "-"
-            
+
         # Get search/filter value
-        search_query = request.GET.get('search[value]','')
-        
+        search_query = request.GET.get('search[value]', '')
+
         # If search/filter value not provided
         if search_query == '':
             # We don't perform search
@@ -137,8 +138,8 @@ class Datatable(object):
         lookup_dict_list = []
         looked_up_defer_index = []
         defer = copy.copy(self.defer)
-        for k,l in enumerate(lookup):
-            l_dict = {"lookup_field":l}
+        for k, l in enumerate(lookup):
+            l_dict = {"lookup_field": l}
             splited_l = l.split("__")
             field = ""
             if len(splited_l) > 0:
@@ -153,21 +154,21 @@ class Datatable(object):
         self.looked_up_defer_index = looked_up_defer_index
         self.lookup_defer = lookup_dict_list
 
-    # Set error status true and give error message if there is no search result 
-    def search_error(self,error_messages):
+    # Set error status true and give error message if there is no search result
+    def search_error(self, error_messages):
         self.error = True
         self.error_messages = error_messages
 
-    def search(self,search_query):
+    def search(self, search_query):
         self.search_query = search_query
-            
+
         # we check, is it searchable or not? searchable parameter sent by client in request url
         # if it is searchable and not in lookup defer, we append it to search_defer
         search_defer = []
         u_id = []
         ld_index = 0
         for n in range(len(self.defer)):
-            if self.request.GET.get('columns['+str(n)+'][searchable]','false') == 'true':
+            if self.request.GET.get('columns['+str(n)+'][searchable]', 'false') == 'true':
                 if len(self.lookup_defer) > 0:
                     cleaned_lookup_defer = []
                     for ld in self.lookup_defer:
@@ -178,16 +179,18 @@ class Datatable(object):
                     if self.defer[n] not in cleaned_lookup_defer:
                         search_defer.append(self.defer[n]+"__icontains")
                     else:
-                        keyword = self.lookup_defer[ld_index]['lookup_field'] + "__icontains"
+                        keyword = self.lookup_defer[ld_index]['lookup_field'] + \
+                            "__icontains"
                         kwargs = {
-                            keyword : self.search_query
+                            keyword: self.search_query
                         }
-                        u_id += list(self.lookup_defer[ld_index]['model'].objects.filter(**kwargs).values_list(self.key, flat=True))
+                        u_id += list(self.lookup_defer[ld_index]['model'].objects.filter(
+                            **kwargs).values_list(self.key, flat=True))
                         ld_index += 1
 
                 else:
                     search_defer.append(self.defer[n]+"__icontains")
-                    
+
         self.search_defer = search_defer
         self.search_uid_defer = u_id
         self.perform_search()
@@ -197,7 +200,7 @@ class Datatable(object):
 
         # We make filter queries from the defer
         queries = [Q(**{f: self.search_query}) for f in self.search_defer]
-        queries.append(Q(**{"%s__in"%self.key: self.search_uid_defer}))
+        queries.append(Q(**{"%s__in" % self.key: self.search_uid_defer}))
         # We instantiate a variable called QS from Q class
         qs = Q()
         # for every query in filter queries
@@ -205,7 +208,7 @@ class Datatable(object):
             # we make or query for every search defer with same value
             qs = qs | query
 
-        # Then we try to 
+        # Then we try to
         try:
             # append the filter methode to the queryset object with qs object as parameter
             self.posts = self.obj.filter(qs)
@@ -214,14 +217,15 @@ class Datatable(object):
         # if we failed to try
         except Exception as e:
             # we sent an error response to client
-            return JSONResponse({'error' : 'error in search parameter', 'error detail': str(e), 'suggestion' : 'Only enable varchar data type only for search'})
+            return JSONResponse({'error': 'error in search parameter', 'error detail': str(e), 'suggestion': 'Only enable varchar data type only for search'})
 
     # we add ordering method to queryset object with ordering parameter sent by client
     def order(self):
-        self.posts = self.posts.order_by(self.ordering+self.defer[int(self.request.GET.get('order[0][column]',0))])
+        self.posts = self.posts.order_by(
+            self.ordering+self.defer[int(self.request.GET.get('order[0][column]', 0))])
 
     # this method appending every field from result of post object to datatable row list
-    def append(self): 
+    def append(self):
         self.data['data'] = []
         n = 0
         # for every post result in page requested by client, we do:
@@ -230,7 +234,7 @@ class Datatable(object):
         for v in self.posts:
             d_list = []
             # loop for every defer then
-            for k,x in enumerate(self.defer):
+            for k, x in enumerate(self.defer):
                 # get attribute of post result with defer as a key
                 if k in self.looked_up_defer_index:
                     di = self.looked_up_defer_index.index(k)
@@ -241,7 +245,7 @@ class Datatable(object):
                         if not o:
                             continue
                         attr = getattr(o, field)
-                        o=attr
+                        o = attr
 
                 # if defer in method_field, get method field value instead
                 elif x in self.method_origin_field:
@@ -306,7 +310,8 @@ class Datatable(object):
             # for every custom button provided in parameter:
             for b in self.custom_button:
                 # we render the button html
-                button = button+'<button type="button" style="'+b['style']+'" class="'+b['class']+'" data-id="'+str(getattr(v, self.key))+'"><span><i class="fa '+b['icon']+'"></i>&nbsp;'+b['text']+'</span></button>'
+                button = button+'<button type="button" style="'+b['style']+'" class="'+b['class']+'" data-id="'+str(
+                    getattr(v, self.key))+'"><span><i class="fa '+b['icon']+'"></i>&nbsp;'+b['text']+'</span></button>'
             # Then we append the rendered button to the field
             d_list.append(button)
             self.data['data'].append(tuple(d_list))
