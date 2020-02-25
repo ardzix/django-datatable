@@ -43,9 +43,11 @@ class Datatable(object):
     error_messages = None
     defer = []
     lookup_defer = []
+    lookup_m2m_defer = []
     search_defer = []
     search_uid_defer = []
     looked_up_defer_index = []
+    looked_up_m2m_defer_index = []
     search_query = []
     method_origin_field = []
     method_field = []
@@ -129,6 +131,30 @@ class Datatable(object):
         for m in method:
             self.method_origin_field.append(m['origin'])
             self.method_field.append(m['method'])
+
+    def set_lookup_m2m_defer(self, lookup=[]):
+        '''
+        Use this method if you want your column value to be looked up to another m2m models
+        look up field is a relational field
+        '''
+        lookup_dict_list = []
+        looked_up_defer_index = []
+        defer = copy.copy(self.defer)
+        for k, l in enumerate(lookup):
+            l_dict = {"lookup_field": l}
+            splited_l = l.split("__")
+            field = ""
+            if len(splited_l) > 0:
+                l_dict['field'] = splited_l[0]
+                l_dict['index'] = defer.index(l_dict['field'])
+                defer[l_dict['index']] = '-'
+                if len(self.obj) > 0:
+                    l_dict['model'] = self.obj[0].__class__
+                    looked_up_defer_index.append(l_dict['index'])
+                    lookup_dict_list.append(l_dict)
+
+        self.looked_up_m2m_defer_index = looked_up_defer_index
+        self.lookup_m2m_defer = lookup_dict_list
 
     def set_lookup_defer(self, lookup=[]):
         '''
@@ -247,11 +273,18 @@ class Datatable(object):
                         attr = getattr(o, field)
                         o = attr
 
+                # get attribute of post result with m2m defer as a key
+                elif k in self.looked_up_m2m_defer_index:
+                    di = self.looked_up_m2m_defer_index.index(k)
+                    ld = self.lookup_m2m_defer[di]
+                    lf = ld['lookup_field'].split("__")
+                    o = v
+                    attr = ", ".join(list(getattr(o, lf[0]).values_list(lf[1], flat=True)))
+
                 # if defer in method_field, get method field value instead
                 elif x in self.method_origin_field:
                     index = self.method_origin_field.index(x)
                     attr = getattr(v, self.method_field[index])
-
                 else:
                     attr = getattr(v, x)
 
