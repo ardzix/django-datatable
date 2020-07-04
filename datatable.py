@@ -53,7 +53,7 @@ class Datatable(object):
     method_field = []
     custom_button = []
 
-    def __init__(self, request, obj, defer, key="id62", deff_button=True, custom_button=[]):
+    def __init__(self, request, obj, defer, key="id62", deff_button=True, custom_button=[], *args, **kwargs):
         '''
         When you instantiate a variable with this class, you need to provide:
         - request   : the request needed to get url parameter sent by client
@@ -73,9 +73,62 @@ class Datatable(object):
         self.offset = int(request.GET.get("start", 0))
         self.limit = int(request.GET.get("length", 10)) + self.offset
 
+        # handle filter date
+        self.filter_date_key = kwargs.get("date_filter_key", 'created_at')
+        self.start_date = kwargs.get('start_date', None)
+        self.start_filter = '%s__gte' % self.filter_date_key
+
+        self.end_date = kwargs.get('end_date', None)
+        self.end_filter = '%s__lte' % self.filter_date_key
+
+        self.obj = self.filter_date_range()
+
+    """ 
+    filter by views with add kwargs start_date or/and end_date
+    date type is string and use "YYYY-MM-DD" format
+    example:
+    d = Datatable(
+        request, qs, defer, custom_button=custom_buttons,
+        date_filter_key='start_date', start_date="2020-01-01", end_date='2020-03-28')
+    """
+    def filter_date_range(self):
+        key = self.filter_date_key
+        start_date = self.start_date
+        end_date = self.end_date
+        obj = self.obj
+
+        start_filter = '%s__gte' % key
+        end_filter = '%s__lte' % key
+
+        if start_date:
+            obj = obj.filter(**{ start_filter: start_date })
+        
+        if end_date:
+            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_date = end_date + datetime.timedelta(seconds=86400)
+            obj = obj.filter(**{ end_filter: end_date })
+            
+        return obj
+
     def perform_query(self):
         request = self.request
         obj = self.obj
+
+        '''
+        able filter date by query string, but default filter coulumn is 'created_at'
+        url?start_date=2020-01-01&end_date=2020-12-12
+        '''
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+
+        if not self.start_date and start_date:
+            obj = obj.filter(**{ self.start_filter: start_date })
+        
+        if not self.end_date and end_date:
+            end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+            end_date = end_date + datetime.timedelta(seconds=86400)
+            obj = obj.filter(**{ self.end_filter: end_date })
+
         # Get ordering parameter
         if not request.GET.get("order[0][dir]", "") == "asc":
             self.ordering = "-"
